@@ -1,22 +1,25 @@
 # M3U8 Song Exporter
 
-將資料夾內的 `.m3u8` 播放清單所引用的**本機檔案**，複製到與清單同名的資料夾。適合把清單中的音樂整理成可攜帶的檔案集合。
+Copy local audio files referenced by `.m3u8` playlists into folders named after their playlists. This is useful for collecting the files in a playlist into a portable folder.
 
-## 使用方式
+## Requirements
 
-需要 Python 3.10 以上，程式本身不需要額外安裝套件。
+- Python 3.10 or newer
+- No third-party packages are required to run the Python script
 
-1. 將 `M3U8_exporter.py` 放在播放清單所在資料夾；或以命令列指定資料夾。
-2. 確認 `.m3u8` 內的檔案路徑指向電腦上實際存在的檔案。
-3. 執行：
+## Usage
+
+1. Put `M3U8_exporter.py` in the folder containing your playlists, or pass that folder as an argument.
+2. Make sure the paths in each `.m3u8` playlist point to files that exist on your computer.
+3. Run:
 
    ```powershell
    python M3U8_exporter.py "D:\Music\Playlists"
    ```
 
-   不指定資料夾時，會掃描程式所在資料夾。程式只掃描該資料夾第一層的 `.m3u8`。
+If you omit the folder argument, the program scans the folder containing the script or executable. It scans only `.m3u8` files directly in that folder, without searching subfolders.
 
-例如 `Favorites.m3u8` 含有以下內容：
+For example, given `Favorites.m3u8`:
 
 ```m3u8
 #EXTM3U
@@ -24,25 +27,31 @@
 ..\Music\example.mp3
 ```
 
-執行後會建立 `Favorites\example.mp3`。相對路徑以播放清單所在資料夾為起點。支援 UTF-8 與含 BOM 的 UTF-8 清單；`#` 開頭的中繼資料行會略過。
+The program creates `Favorites\example.mp3`. Relative paths are resolved from the playlist's folder. UTF-8 playlists with or without a byte order mark (BOM) are supported. Empty lines and metadata lines beginning with `#` are ignored.
 
-現有目的檔不會覆寫。如果同名檔案內容不同，程式會顯示衝突並以非零狀態碼結束；請手動改名或調整清單。找不到來源檔案也會列出行號。這個工具只複製檔案，**不會重寫播放清單**，也不會下載網路串流網址。複製大量音樂前請確認磁碟剩餘空間，以及你對音樂檔案的使用權限。
+Existing destination files are never overwritten. If another source file has the same name but different contents, the program reports a collision and exits with a nonzero status. Missing source files are reported with their playlist line numbers. Resolve these issues by renaming the files or adjusting the playlist.
 
-## Windows 執行檔
+This tool copies files; it does **not** rewrite playlists or download files from streaming URLs. Check available disk space before copying large collections, and make sure you have the rights to use the audio files.
 
-已提供的 `M3U8_exporter.exe` 是獨立的舊版執行檔，操作方式是放在 `.m3u8` 旁執行。它不是由此倉庫修訂後的程式碼重新建置，建議在 GitHub **Releases** 中單獨上傳並標示為舊版，避免誤認為與目前原始碼完全一致。
+## Windows executable
 
-若要從目前原始碼自行建置新版，先安裝 PyInstaller，再執行：
+The previously supplied `M3U8_exporter.exe` is a standalone build of an **earlier version**. Place it next to your `.m3u8` files and run it. It was not rebuilt from the revised source code in this repository. If you publish that file, attach it separately to a GitHub Release and label it as an older build so users do not assume it matches the current source.
+
+To build a new executable from the current source, install PyInstaller and run:
 
 ```powershell
 python -m pip install pyinstaller
 python -m PyInstaller --onefile --console --name M3U8_exporter M3U8_exporter.py
 ```
 
-完成後的檔案位於 `dist\M3U8_exporter.exe`。建置工具是開發需求，執行 Python 原始碼不需要它。
+The resulting file is `dist\M3U8_exporter.exe`. PyInstaller is only needed to build an executable; it is not needed to run the Python script.
 
-## 驗證
+## Tests
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
+
+## License
+
+No open-source license is currently granted. All rights are reserved. Public access to this source code does not grant permission to copy, modify, or redistribute it. A license can be added later if the owner chooses to grant those rights.
